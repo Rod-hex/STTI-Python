@@ -45,6 +45,27 @@ python3 SSTI.py
 URL: http://<IP:PORT>
 ```
 
+## Advertencias y alcance del proyecto
 
+Este proyecto ha sido desarrollado con fines **exclusivamente educativos y de investigación**, en el contexto de laboratorios controlados (CTFs y entornos de práctica como Hack The Box).
 
+Aspectos a tener en cuenta:
 
+- La herramienta se concibe como una **prueba de concepto (PoC)** para la detección de vulnerabilidades de Server-Side Template Injection (SSTI).  
+  No pretende ser una solución genérica ni lista para uso en entornos de producción.
+
+- Aunque el objetivo principal es la **detección**, el código incluye lógica experimental de explotación con fines demostrativos.  
+  Cualquier uso de estas funcionalidades debe realizarse **únicamente sobre sistemas propios o con autorización explícita**.
+
+- El código **no está comentado ni optimizado** deliberadamente en esta fase, priorizando la funcionalidad y la validación del concepto.  
+  Se prevé una futura refactorización orientada a mejorar legibilidad, modularidad y mantenibilidad.
+
+- La detección se basa en **heurísticas y payloads específicos**, por lo que pueden existir falsos positivos o falsos negativos dependiendo del motor de plantillas y del contexto de ejecución.
+
+- La herramienta no implementa actualmente:
+  - Gestión avanzada de errores
+  - Separación estricta entre detección y explotación
+  - Soporte completo para todos los métodos HTTP
+  - Normalización de salidas según tipo de contenido
+
+El autor no se responsabiliza del uso indebido de esta herramienta fuera de entornos controlados o sin el consentimiento adecuado.
