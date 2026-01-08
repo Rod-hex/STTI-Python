@@ -36,11 +36,15 @@ cd STTI-Python
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 SSTI.py
 ```
 
 ## Uso
 
-URL: http://victima.local/search
+```shell-session
+python3 SSTI.py
+URL: http://<IP:PORT>
+```
+
+
 
 
