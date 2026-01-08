@@ -31,12 +31,12 @@ El script analiza formularios HTML, identifica parámetros inyectables y prueba 
 Clona el repositorio y crea un entorno virtual (opcional pero recomendado):
 
 ```bash
-git clone https://github.com/tuusuario/ssti-scanner.git
-cd ssti-scanner
+git clone https://github.com/Rod-hex/STTI-Python.git
+cd STTI-Python
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 ssti_scanner.py
+python3 SSTI.py
 ```
 
 ## Uso
