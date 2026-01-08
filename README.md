@@ -2,9 +2,9 @@
 
 Herramienta en Python para la **detección automática de vulnerabilidades Server-Side Template Injection (SSTI)** en aplicaciones web y su **explotación interactiva**, con soporte inicial para los motores de plantillas:
 
-- Smarty
+- Smarty (Apartadp de explotación en desarrollo)
 - Mako
-- Jinja2
+- Jinja2 (Apartado de explotación en desarrollo)
 
 El script analiza formularios HTML, identifica parámetros inyectables y prueba payloads específicos para detectar y, en caso afirmativo, ejecutar comandos del sistema remoto.
 
@@ -42,4 +42,5 @@ python3 SSTI.py
 ## Uso
 
 URL: http://victima.local/search
+
 
